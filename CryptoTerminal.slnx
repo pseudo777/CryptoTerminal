@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="CryptoTerminal.App/CryptoTerminal.App.csproj" />
+  <Project Path="CryptoTerminal.Core/CryptoTerminal.Core.csproj" />
+  <Project Path="CryptoTerminal.Tests/CryptoTerminal.Tests.csproj" />
+</Solution>
