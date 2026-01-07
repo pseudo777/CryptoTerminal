@@ -35,4 +35,20 @@ public class MockExchangeService : IExchangeService
 
         return Task.FromResult(list);
     }
+
+    public Task<Action> SubscribeToKlineAsync(string symbol, string interval, Action<UnifiedKline> onUpdate)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<long> PlaceOrderAsync(string symbol, string side, string type, double quantity, double price, double? tpPrice,
+        double? slPrice)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task CancelOrderAsync(string symbol, long orderId)
+    {
+        throw new NotImplementedException();
+    }
 }

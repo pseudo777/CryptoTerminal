@@ -63,6 +63,11 @@
                         <TextBlock Text="Stop Loss" />
                         <TextBox Text="{Binding TradeSetup.SlPrice, Mode=TwoWay, StringFormat='F2'}" />
                     </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Quantity (BTC)"/>
+                        <!-- 确保 Binding 路径是 TradeSetup.Quantity -->
+                        <TextBox Text="{Binding TradeSetup.Quantity, Mode=TwoWay}" Watermark="Amount"/>
+                    </StackPanel>
 
                     <Border Background="White" BorderBrush="#eee" BorderThickness="1" Padding="10" Margin="0,10">
                         <StackPanel Spacing="5">

@@ -37,6 +37,9 @@ public partial class TradeSetupModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsValid))]
     private bool _isLong = true;
     
+    [ObservableProperty]
+    private double _quantity = 0.002; // 给一个默认值，防止新手填0报错 (BTC 最小通常是 0.001)
+    
     // 盈亏比 (Risk/Reward Ratio) 文本
     public string RiskRewardLabel
     {

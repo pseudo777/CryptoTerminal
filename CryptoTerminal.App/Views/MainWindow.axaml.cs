@@ -8,6 +8,7 @@ using System.Linq;
 using CryptoTerminal.App.Components;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 
 namespace CryptoTerminal.App.Views;
 
@@ -75,8 +76,47 @@ public partial class MainWindow : Window
 
             // 监听：实盘列表变化 (撤单后) -> 刷新
             vm.OnOrderListChanged += () => ChartPlot.Refresh();
+            
+            vm.OnRealtimeUpdate += UpdateLastCandle;
         }
     }
+    
+    private void UpdateLastCandle(UnifiedKline kline)
+    {
+        // 必须在 UI 线程执行
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            // 1. 更新 ScottPlot 的数据源
+            // 我们需要访问 UpdateChart 里创建的 ohlcList 列表
+            // 为了方便，建议把 ohlcList 提升为 MainWindow 的成员变量
+        
+            if (_ohlcList.Count > 0)
+            {
+                var last = _ohlcList.Last();
+                if (last.DateTime == kline.OpenTime)
+                {
+                    // 更新当前这根
+                    _ohlcList[_ohlcList.Count - 1] = new OHLC(kline.Open, kline.High, kline.Low, kline.Close, kline.OpenTime, TimeSpan.FromMinutes(1));
+                }
+                else
+                {
+                    // 新增一根
+                    _ohlcList.Add(new OHLC(kline.Open, kline.High, kline.Low, kline.Close, kline.OpenTime, TimeSpan.FromMinutes(1)));
+                }
+            
+                // 2. 顺便更新 TradeModel 的 MarketPrice，保证 Limit/Stop 逻辑实时正确
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.TradeSetup.MarketPrice = kline.Close;
+                }
+
+                // 3. 刷新图表
+                ChartPlot.Refresh(); 
+            }
+        });
+    }
+    private List<OHLC> _ohlcList = new();
+
 
     private void UpdateChart(List<UnifiedKline> klines)
     {
@@ -84,14 +124,15 @@ public partial class MainWindow : Window
         ChartPlot.Plot.Clear();
         // 2. 转换数据格式为 ScottPlot OHLC
         // 注意：ScottPlot 5 的 OHLC 构造函数可能需要 TimeSpan 作为周期
-        var ohlcList = new List<OHLC>();
+        //var ohlcList = new List<OHLC>();
+        
         foreach (var k in klines)
         {
-            ohlcList.Add(new OHLC(k.Open, k.High, k.Low, k.Close, k.OpenTime, System.TimeSpan.FromMinutes(1)));
+            _ohlcList.Add(new OHLC(k.Open, k.High, k.Low, k.Close, k.OpenTime, System.TimeSpan.FromMinutes(1)));
         }
 
         // 3. 添加蜡烛图
-        var candlePlot = ChartPlot.Plot.Add.Candlestick(ohlcList);
+        var candlePlot = ChartPlot.Plot.Add.Candlestick(_ohlcList);
         candlePlot.RisingColor = Colors.Green;
         candlePlot.FallingColor = Colors.Red;
 

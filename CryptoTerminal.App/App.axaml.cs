@@ -26,7 +26,8 @@ public partial class App : Application
         var serviceCollection = new ServiceCollection();
 
         // 注册服务：当有人要 IExchangeService 时，给它 MockExchangeService
-        serviceCollection.AddSingleton<IExchangeService, MockExchangeService>();
+        //serviceCollection.AddSingleton<IExchangeService, MockExchangeService>();
+        serviceCollection.AddSingleton<IExchangeService, BinanceService>();
 
         // 注册 ViewModel
         serviceCollection.AddTransient<MainViewModel>();
